@@ -1,0 +1,232 @@
+{
+  "instructions": {
+    "projectContext": {
+      "name": "MQL5 Marketplace",
+      "description": "Platform e-commerce untuk menjual Expert Advisors (EA) MetaTrader 5",
+      "architecture": "Full-stack React + Node.js",
+      "database": "Google Sheets API",
+      "payment": "Midtrans",
+      "authentication": "JWT",
+      "deployment": "Local/Cloud"
+    },
+    "codeGeneration": {
+      "autoConnect": true,
+      "followPatterns": true,
+      "includeErrorHandling": true,
+      "responsiveDesign": true,
+      "securityFirst": true
+    }
+  },
+  "projectStructure": {
+    "backend": {
+      "basePort": 5000,
+      "apiPrefix": "/api",
+      "routes": {
+        "auth": "/api/auth",
+        "products": "/api/products", 
+        "admin": "/api/admin",
+        "user": "/api/user",
+        "payments": "/api/payments",
+        "telegram": "/api/telegram"
+      },
+      "middleware": [
+        "authenticateToken",
+        "requireAdmin", 
+        "upload",
+        "rateLimit"
+      ],
+      "directories": {
+        "routes": "./routes/",
+        "middleware": "./middleware/",
+        "services": "./services/",
+        "utils": "./utils/",
+        "uploads": "./uploads/"
+      }
+    },
+    "frontend": {
+      "basePort": 3000,
+      "framework": "React",
+      "uiLibrary": "Material-UI",
+      "routing": "React Router v6",
+      "directories": {
+        "components": "./src/components/",
+        "pages": "./src/pages/",
+        "services": "./src/services/",
+        "utils": "./src/utils/",
+        "theme": "./src/theme/"
+      },
+      "routes": [
+        { "path": "/", "component": "Home" },
+        { "path": "/products", "component": "Products" },
+        { "path": "/product/:id", "component": "ProductDetail" },
+        { "path": "/login", "component": "Login" },
+        { "path": "/register", "component": "Register" },
+        { "path": "/dashboard", "component": "UserDashboard", "protected": true },
+        { "path": "/admin", "component": "AdminDashboard", "protected": true, "role": "admin" },
+        { "path": "/payment/success", "component": "PaymentSuccess" },
+        { "path": "/payment/cancel", "component": "PaymentCancel" }
+      ]
+    }
+  },
+  "codePatterns": {
+    "imports": {
+      "react": "import React, { useState, useEffect } from 'react';",
+      "mui": "import { Box, Typography, Grid, Card, Button } from '@mui/material';",
+      "router": "import { useNavigate, useParams, Navigate } from 'react-router-dom';",
+      "api": "import { apiService } from '../services/api';",
+      "animations": "import { FadeInUp, FadeInLeft, AnimatedSlide } from '../components/ui/Animations';",
+      "components": {
+        "button": "import Button from '../components/ui/Button';",
+        "modal": "import Modal, { ConfirmDialog } from '../components/ui/Modal';",
+        "spinner": "import LoadingSpinner from '../components/ui/LoadingSpinner';",
+        "layout": "import DashboardLayout from '../components/layout/DashboardLayout';",
+        "seo": "import SEO from '../components/common/SEO';"
+      }
+    },
+    "apiIntegration": {
+      "template": "const [loading, setLoading] = useState(false);\nconst [error, setError] = useState(null);\nconst [data, setData] = useState(null);\n\nconst fetchData = async () => {\n  try {\n    setLoading(true);\n    const response = await apiService.get('/endpoint');\n    setData(response.data);\n  } catch (err) {\n    setError(err.message);\n  } finally {\n    setLoading(false);\n  }\n};",
+      "methods": {
+        "get": "apiService.get('/endpoint')",
+        "post": "apiService.post('/endpoint', data)",
+        "put": "apiService.put('/endpoint', data)",
+        "delete": "apiService.delete('/endpoint')"
+      }
+    },
+    "authentication": {
+      "check": "const { user, isAuthenticated } = useAuth();",
+      "redirect": "if (!isAuthenticated) return <Navigate to=\"/login\" />;",
+      "adminCheck": "if (user?.role !== 'admin') return <Navigate to=\"/dashboard\" />;"
+    },
+    "styling": {
+      "responsive": "sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, spacing: { xs: 2, md: 4 } }}",
+      "theme": "import { theme } from '../theme';"
+    }
+  },
+  "backendPatterns": {
+    "routeHandler": {
+      "template": "app.METHOD('/api/endpoint', authenticateToken, async (req, res) => {\n  try {\n    const { error } = validateInput(req.body);\n    if (error) return res.status(400).json({ message: error.details[0].message });\n    \n    const result = await serviceFunction(req.body);\n    res.json({ success: true, data: result });\n  } catch (error) {\n    console.error('Error:', error);\n    res.status(500).json({ message: 'Internal server error' });\n  }\n});",
+      "middleware": [
+        "authenticateToken",
+        "requireAdmin",
+        "upload.single('file')",
+        "rateLimit"
+      ]
+    },
+    "googleSheets": {
+      "connection": "const { GoogleSpreadsheet } = require('google-spreadsheet');\nconst doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID);\nawait doc.useServiceAccountAuth({\n  client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,\n  private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\\\n/g, '\\n')\n});",
+      "operations": {
+        "read": "const sheet = doc.sheetsByIndex[0];\nconst rows = await sheet.getRows();",
+        "create": "await sheet.addRow(data);",
+        "update": "await row.save();",
+        "delete": "await row.delete();"
+      }
+    }
+  },
+  "generationRules": {
+    "autoRouteConnection": {
+      "frontend": "Automatically add new routes to App.js with proper imports and components",
+      "backend": "Automatically connect new API endpoints to existing route structure"
+    },
+    "componentGeneration": {
+      "alwaysInclude": [
+        "useState for local state",
+        "useEffect for data fetching", 
+        "Error handling with try-catch",
+        "Loading states",
+        "Responsive design",
+        "Material-UI components",
+        "Animation components",
+        "SEO component for pages"
+      ]
+    },
+    "apiGeneration": {
+      "alwaysInclude": [
+        "Input validation",
+        "Authentication middleware",
+        "Error handling",
+        "Proper HTTP status codes",
+        "Logging",
+        "CORS headers"
+      ]
+    },
+    "security": {
+      "frontend": [
+        "Authentication checks",
+        "Role-based access control",
+        "Input sanitization",
+        "XSS protection"
+      ],
+      "backend": [
+        "JWT validation",
+        "Rate limiting",
+        "Input validation",
+        "SQL injection prevention",
+        "Security headers"
+      ]
+    }
+  },
+  "environmentVariables": {
+    "required": [
+      "JWT_SECRET",
+      "GOOGLE_SHEET_ID", 
+      "GOOGLE_SERVICE_ACCOUNT_EMAIL",
+      "GOOGLE_PRIVATE_KEY",
+      "MIDTRANS_SERVER_KEY",
+      "TELEGRAM_BOT_TOKEN",
+      "PORT"
+    ]
+  },
+  "dependencies": {
+    "backend": {
+      "core": ["express", "cors", "dotenv", "jsonwebtoken"],
+      "database": ["google-spreadsheet"],
+      "payment": ["midtrans-client"],
+      "telegram": ["node-telegram-bot-api"],
+      "security": ["express-rate-limit", "helmet"],
+      "upload": ["multer"],
+      "validation": ["joi"]
+    },
+    "frontend": {
+      "core": ["react", "react-dom", "react-router-dom"],
+      "ui": ["@mui/material", "@emotion/react", "@emotion/styled"],
+      "http": ["axios"],
+      "icons": ["@mui/icons-material"],
+      "utils": ["uuid"]
+    }
+  },
+  "testingPatterns": {
+    "frontend": {
+      "component": "import { render, screen, fireEvent } from '@testing-library/react';\nimport Component from './Component';\n\ndescribe('Component', () => {\n  test('should render correctly', () => {\n    render(<Component />);\n    expect(screen.getByText('Expected Text')).toBeInTheDocument();\n  });\n});",
+      "api": "import { apiService } from '../services/api';\n\njest.mock('../services/api');\n\ntest('should handle API calls', async () => {\n  apiService.get.mockResolvedValue({ data: mockData });\n  // Test implementation\n});"
+    },
+    "backend": {
+      "route": "const request = require('supertest');\nconst app = require('../server');\n\ndescribe('Route', () => {\n  test('should return success', async () => {\n    const response = await request(app)\n      .get('/api/endpoint')\n      .expect(200);\n    expect(response.body.success).toBe(true);\n  });\n});"
+    }
+  },
+  "deploymentConfig": {
+    "docker": {
+      "backend": "FROM node:18-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci --only=production\nCOPY . .\nEXPOSE 5000\nCMD [\"node\", \"server.js\"]",
+      "frontend": "FROM node:18-alpine as build\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM nginx:alpine\nCOPY --from=build /app/build /usr/share/nginx/html\nEXPOSE 80\nCMD [\"nginx\", \"-g\", \"daemon off;\"]"
+    }
+  },
+  "performance": {
+    "frontend": [
+      "React.memo() for expensive components",
+      "useCallback() for event handlers",
+      "useMemo() for computed values", 
+      "Lazy loading for routes",
+      "Image optimization"
+    ],
+    "backend": [
+      "Response caching",
+      "Database query optimization",
+      "File upload streaming",
+      "Request compression",
+      "Rate limiting"
+    ]
+  },
+  "monitoring": {
+    "logging": "console.log(`${new Date().toISOString()} - ${req.method} ${req.path} - ${req.ip}`);",
+    "performance": "const start = Date.now();\n// ... operation\nconst duration = Date.now() - start;\nif (duration > 1000) console.warn(`Slow operation: ${duration}ms`);"
+  }
+}

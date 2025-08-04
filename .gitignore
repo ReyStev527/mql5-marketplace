@@ -1,0 +1,85 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Production builds
+build/
+dist/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Upload directories
+uploads/ea_files/*
+uploads/compiled/*
+!uploads/ea_files/.gitkeep
+!uploads/compiled/.gitkeep
+
+# Temporary files
+tmp/
+temp/
+
+# Service account credentials (keep secure!)
+credentials/
+service-account.json
+
+# Local development
+.cache/
+
+# Backend specific
+backend/node_modules/
+backend/uploads/ea_files/*
+backend/uploads/compiled/*
+!backend/uploads/ea_files/.gitkeep
+!backend/uploads/compiled/.gitkeep
+
+# Frontend specific
+frontend/node_modules/
+frontend/build/
+
+# Test files (already cleaned up)
+*test*.html
+*test*.js
+!frontend/src/components/**/*Test*.js
+!backend/debug/test-*.js
+
+# Report files
+*-report.json
+
+# Deployment
+gh-pages-deploy/

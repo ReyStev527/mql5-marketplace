@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auto Login Admin Dashboard</title>
+</head>
+<body>
+    <h1>Auto-Login to Admin Dashboard</h1>
+    <p>Setting token and redirecting...</p>
+    
+    <script>
+        // Set the admin token
+        const adminToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQ1NGY3ZWQ1LWM0N2EtNDBmYS04N2VkLWMzYzY3ZTlmNzBmYiIsImVtYWlsIjoiYWRtaW5AbXFsNW1hcmtldHBsYWNlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NDI4MzYwNSwiZXhwIjoxNzU0MzcwMDA1fQ.V6C0nzgKKvJWloInaoMVej7XsnG5NKnB5KXjvrTYkeU';
+        
+        // Store in localStorage
+        localStorage.setItem('token', adminToken);
+        
+        console.log('✅ Admin token set in localStorage');
+        console.log('🔗 Redirecting to admin dashboard...');
+        
+        // Redirect to admin dashboard
+        setTimeout(() => {
+            window.location.href = 'http://localhost:3000/admin/products';
+        }, 2000);
+    </script>
+</body>
+</html>

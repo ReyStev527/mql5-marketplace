@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MQL5 Admin Debug - Set Token</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .token-box { background: #f8f9fa; padding: 15px; border-radius: 5px; font-family: monospace; word-break: break-all; margin: 10px 0; }
+        button { background: #007bff; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        .success { color: #28a745; font-weight: bold; }
+        .info { color: #17a2b8; }
+        .warning { color: #ffc107; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 MQL5 Admin Dashboard - Debug Tool</h1>
+        
+        <h3>📋 Current Token Status:</h3>
+        <div id="tokenStatus"></div>
+        
+        <h3>🎫 Admin Token:</h3>
+        <div class="token-box" id="adminToken">
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQ1NGY3ZWQ1LWM0N2EtNDBmYS04N2VkLWMzYzY3ZTlmNzBmYiIsImVtYWlsIjoiYWRtaW5AbXFsNW1hcmtldHBsYWNlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NDI4MzYwNSwiZXhwIjoxNzU0MzcwMDA1fQ.V6C0nzgKKvJWloInaoMVej7XsnG5NKnB5KXjvrTYkeU
+        </div>
+        
+        <h3>🔧 Actions:</h3>
+        <button onclick="setToken()">Set Token in localStorage</button>
+        <button onclick="clearToken()">Clear Token</button>
+        <button onclick="checkToken()">Check Current Token</button>
+        <button onclick="testAPI()">Test Admin API</button>
+        <button onclick="goToAdmin()">Go to Admin Dashboard</button>
+        
+        <h3>📊 API Test Results:</h3>
+        <div id="apiResults"></div>
+        
+        <h3>🔍 Debug Log:</h3>
+        <div id="debugLog"></div>
+    </div>
+
+    <script>
+        const adminToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQ1NGY3ZWQ1LWM0N2EtNDBmYS04N2VkLWMzYzY3ZTlmNzBmYiIsImVtYWlsIjoiYWRtaW5AbXFsNW1hcmtldHBsYWNlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NDI4MzYwNSwiZXhwIjoxNzU0MzcwMDA1fQ.V6C0nzgKKvJWloInaoMVej7XsnG5NKnB5KXjvrTYkeU';
+        
+        function log(message, type = 'info') {
+            const debugLog = document.getElementById('debugLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8';
+            debugLog.innerHTML += `<div style="color: ${color}; margin: 5px 0;">[${timestamp}] ${message}</div>`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+        }
+        
+        function setToken() {
+            localStorage.setItem('token', adminToken);
+            log('✅ Admin token set in localStorage', 'success');
+            checkToken();
+        }
+        
+        function clearToken() {
+            localStorage.removeItem('token');
+            log('🗑️ Token cleared from localStorage', 'info');
+            checkToken();
+        }
+        
+        function checkToken() {
+            const currentToken = localStorage.getItem('token');
+            const statusDiv = document.getElementById('tokenStatus');
+            
+            if (currentToken) {
+                statusDiv.innerHTML = `<span class="success">✅ Token is set</span><br>
+                                      <small>Length: ${currentToken.length} characters</small><br>
+                                      <small>Matches admin token: ${currentToken === adminToken ? '✅ Yes' : '❌ No'}</small>`;
+                log('📋 Token found in localStorage', 'success');
+            } else {
+                statusDiv.innerHTML = `<span class="warning">⚠️ No token found</span>`;
+                log('❌ No token found in localStorage', 'error');
+            }
+        }
+        
+        async function testAPI() {
+            const token = localStorage.getItem('token');
+            const resultsDiv = document.getElementById('apiResults');
+            
+            if (!token) {
+                resultsDiv.innerHTML = '<span style="color: red;">❌ No token found. Please set token first.</span>';
+                log('❌ Cannot test API - no token', 'error');
+                return;
+            }
+            
+            try {
+                log('🔍 Testing admin/products API...', 'info');
+                
+                const response = await fetch('http://localhost:5000/api/admin/products', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultsDiv.innerHTML = `
+                        <div class="success">✅ API Response (${response.status}):</div>
+                        <div class="token-box">
+                            Success: ${data.success}<br>
+                            Products Count: ${data.data?.length || 0}<br>
+                            ${data.data?.length > 0 ? 
+                                'Products: ' + data.data.map(p => p.name).join(', ') : 
+                                'No products found'
+                            }
+                        </div>
+                    `;
+                    log(`✅ API test successful - ${data.data?.length || 0} products found`, 'success');
+                } else {
+                    resultsDiv.innerHTML = `<span style="color: red;">❌ API Error (${response.status}): ${data.message || 'Unknown error'}</span>`;
+                    log(`❌ API test failed - ${response.status}: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<span style="color: red;">❌ Network Error: ${error.message}</span>`;
+                log(`❌ Network error: ${error.message}`, 'error');
+            }
+        }
+        
+        function goToAdmin() {
+            log('🔗 Redirecting to admin dashboard...', 'info');
+            window.open('http://localhost:3000/admin/products', '_blank');
+        }
+        
+        // Initialize
+        window.onload = function() {
+            log('🚀 Debug tool loaded', 'success');
+            checkToken();
+        };
+    </script>
+</body>
+</html>

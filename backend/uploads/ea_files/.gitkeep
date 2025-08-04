@@ -1,0 +1,3 @@
+# Keep this directory
+# This file ensures the uploads/ea_files directory is tracked by Git
+# Actual EA files will be ignored by .gitignore
