@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Admin Token</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .token-area {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔑 Set Admin Token</h1>
+        <p>This page will set the admin token in your browser's localStorage to access the admin dashboard.</p>
+        
+        <h3>Current Token:</h3>
+        <div class="token-area" id="currentToken">
+            None
+        </div>
+        
+        <h3>Admin Token:</h3>
+        <div class="token-area">
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluLTEyMyIsImVtYWlsIjoiYWRtaW5AbXFsNW1hcmtldHBsYWNlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NDMwMTY5MywiZXhwIjoxNzU0OTA2NDkzfQ.iFEvcOJW6wgB3Tuh62Uuq08wPry0qHi4kJDdP4F_8m8
+        </div>
+        
+        <button class="btn" onclick="setAdminToken()">🔓 Set Admin Token</button>
+        <button class="btn" onclick="clearToken()">🗑️ Clear Token</button>
+        <button class="btn" onclick="testToken()">🧪 Test Token</button>
+        
+        <div id="result"></div>
+        
+        <h3>Quick Access:</h3>
+        <a href="/admin" class="btn">🏠 Go to Admin Dashboard</a>
+        <a href="/login" class="btn">🔐 Go to Login Page</a>
+    </div>
+
+    <script>
+        const adminToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluLTEyMyIsImVtYWlsIjoiYWRtaW5AbXFsNW1hcmtldHBsYWNlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NDMwMTY5MywiZXhwIjoxNzU0OTA2NDkzfQ.iFEvcOJW6wgB3Tuh62Uuq08wPry0qHi4kJDdP4F_8m8';
+        
+        function updateCurrentToken() {
+            const current = localStorage.getItem('token');
+            document.getElementById('currentToken').textContent = current || 'None';
+        }
+        
+        function setAdminToken() {
+            localStorage.setItem('token', adminToken);
+            updateCurrentToken();
+            showResult('✅ Admin token set successfully!', 'success');
+        }
+        
+        function clearToken() {
+            localStorage.removeItem('token');
+            updateCurrentToken();
+            showResult('🗑️ Token cleared successfully!', 'success');
+        }
+        
+        async function testToken() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showResult('❌ No token found! Please set a token first.', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/admin/products', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showResult(`✅ Token is valid! Found ${data.data.length} products.`, 'success');
+                } else {
+                    showResult(`❌ Token test failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Network error: ${error.message}`, 'error');
+            }
+        }
+        
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<div class="${type}" style="margin-top: 20px;">${message}</div>`;
+        }
+        
+        // Update current token on page load
+        updateCurrentToken();
+    </script>
+</body>
+</html>

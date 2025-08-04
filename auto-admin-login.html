@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Admin Login</title>
+</head>
+<body>
+    <div style="text-align: center; margin-top: 100px; font-family: Arial, sans-serif;">
+        <h2>🔄 Setting up admin access...</h2>
+        <p>Please wait while we configure your admin session.</p>
+    </div>
+
+    <script>
+        // Set admin token and redirect
+        const adminToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluLTEyMyIsImVtYWlsIjoiYWRtaW5AbXFsNW1hcmtldHBsYWNlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NDMwMTY5MywiZXhwIjoxNzU0OTA2NDkzfQ.iFEvcOJW6wgB3Tuh62Uuq08wPry0qHi4kJDdP4F_8m8';
+        
+        localStorage.setItem('token', adminToken);
+        
+        setTimeout(() => {
+            window.location.href = '/admin';
+        }, 1500);
+    </script>
+</body>
+</html>

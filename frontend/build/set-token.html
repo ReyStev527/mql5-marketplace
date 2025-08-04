@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Set Admin Token & Redirect</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; text-align: center; }
+        button { background: #1976d2; color: white; padding: 15px 30px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin: 10px; }
+        button:hover { background: #1565c0; }
+    </style>
+</head>
+<body>
+    <h2>🔐 Admin Token Setup</h2>
+    <p>Click the button below to set your admin token and access the dashboard:</p>
+    
+    <button onclick="setTokenAndRedirect()">🚀 Set Admin Token & Go to Dashboard</button>
+    <button onclick="testApiOnly()">🧪 Test API Only</button>
+    
+    <div id="status" style="margin-top: 20px;"></div>
+
+    <script>
+        // Set admin token
+        const adminToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjkzODQ1MTA0LTAwODMtNGY4MS04MzMwLWUwMjkxYzk4ZmI4YiIsImVtYWlsIjoiYWRtaW5AbXFsNW1hcmtldHBsYWNlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NDI4NTgzMywiZXhwIjoxNzU0MzcyMjMzfQ.j_y_k1ZPD2N2VssNfV4uBlhPhbdbBxVFjKjEDs8zx74';
+        
+        function setTokenAndRedirect() {
+            document.getElementById('status').innerHTML = '⏳ Setting token and testing API...';
+            
+            localStorage.setItem('token', adminToken);
+            console.log('✅ Admin token set!');
+            
+            // Test API call immediately
+            fetch('http://localhost:5000/api/admin/products', {
+                headers: {
+                    'Authorization': `Bearer ${adminToken}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('✅ API Test Result:', data);
+                if (data.success && data.data.length > 0) {
+                    document.getElementById('status').innerHTML = `✅ Success! Found ${data.data.length} products. Redirecting in 2 seconds...`;
+                    setTimeout(() => {
+                        window.location.href = 'http://localhost:3000/admin/products';
+                    }, 2000);
+                } else {
+                    document.getElementById('status').innerHTML = '⚠️ API responded but no products found. Redirecting anyway...';
+                    setTimeout(() => {
+                        window.location.href = 'http://localhost:3000/admin/products';
+                    }, 2000);
+                }
+            })
+            .catch(error => {
+                console.error('❌ API Test Error:', error);
+                document.getElementById('status').innerHTML = `❌ API Test Failed: ${error.message}. Redirecting anyway...`;
+                setTimeout(() => {
+                    window.location.href = 'http://localhost:3000/admin/products';
+                }, 2000);
+            });
+        }
+        
+        function testApiOnly() {
+            document.getElementById('status').innerHTML = '⏳ Testing API...';
+            
+            fetch('http://localhost:5000/api/admin/products', {
+                headers: {
+                    'Authorization': `Bearer ${adminToken}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('✅ API Test Result:', data);
+                if (data.success && data.data.length > 0) {
+                    document.getElementById('status').innerHTML = `✅ API Working! Found ${data.data.length} products:<br><pre>${JSON.stringify(data.data.slice(0, 2), null, 2)}</pre>`;
+                } else {
+                    document.getElementById('status').innerHTML = '⚠️ API responded but no products found.';
+                }
+            })
+            .catch(error => {
+                console.error('❌ API Test Error:', error);
+                document.getElementById('status').innerHTML = `❌ API Test Failed: ${error.message}`;
+            });
+        }
+    </script>
+</body>
+</html>
